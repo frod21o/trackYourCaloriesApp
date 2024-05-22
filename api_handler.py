@@ -25,29 +25,41 @@ def search_food(query: dict) -> dict:
         'branded': True,
         'common': False
     }
-
-    try:
-        response = requests.get(base_url + "search/instant", headers=headers, params=params)
-        response.raise_for_status()  
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
-        return None
+    return _get_response(base_url + "search/instant", params)['branded']
 
 
-def get_nutrition_info(item_id: str) -> dict:
+def get_nutrition_by_id(item_id: str) -> dict:
     """
     Downloads information about nutrition of specific item
 
     :param item_id: Unique product identifier (nix_item_id)
     :return: Dict with nutrition info
     """
-    params = {
-        'nix_item_id': item_id
-    }
+    params = {'nix_item_id': item_id}
+    return _get_response(base_url + "search/item", params)
 
+
+def get_nutrition_by_upc(upc: str) -> dict:
+    """
+    Downloads information about nutrition of specific item
+
+    :param :
+    :return: Dict with nutrition info
+    """
+    params = {'upc': upc}
+    return _get_response(base_url + "search/item", params)
+
+
+def _get_response(url: str, params: dict):
+    """
+    Sends request to given url with given parameters
+
+    :param url: Url address for request
+    :param params: Dict with parameters of the request
+    :return: Dict with response
+    """
     try:
-        response = requests.get(base_url + "search/item", headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -55,33 +67,30 @@ def get_nutrition_info(item_id: str) -> dict:
         return None
 
 
+
+
 if __name__ == "__main__":
+    """ testing functionalities """
     query = "apple"
     search_result = search_food(query)
 
-    if search_result and 'branded' in search_result and search_result['branded']:
-        # Weź pierwszy wynik z listy produktów markowych
-        item_id = search_result['branded'][0]['nix_item_id']
-
-        # Pobierz informacje o składnikach odżywczych
-        nutrition_info = get_nutrition_info(item_id)
-
-        if nutrition_info:
-            print(nutrition_info)
-        else:
-            print("Failed to retrieve nutrition information")
-    else:
-        print("No branded products found or failed to retrieve search results")
+    # if search_result and 'branded' in search_result and search_result['branded']:
+    #     item_id = search_result['branded'][0]['nix_item_id']
+    #
+    #     nutrition_info = get_nutrition_by_id(item_id)
+    #
+    #     if nutrition_info:
+    #         print(nutrition_info)
+    #     else:
+    #         print("Failed to retrieve nutrition information")
+    # else:
+    #     print("No branded products found or failed to retrieve search results")
 
 
-    # if result:
-    #     print(len(result))
-    #     print(result)
-    #     for it in result["common"]:
-    #         print(f"keys: {it.keys()}")
-    #         print(f"name: {it['food_name']}")
-    #         print(f"id: {it['tag_id']}")
-    #     for it in result["branded"]:
+    # if search_result:
+    #     print(len(search_result))
+    #     print(search_result)
+    #     for it in search_result:
     #         # print(f"keys: {it.keys()}")
     #         print(f"name: {it['food_name']}")
     #         print(it)
