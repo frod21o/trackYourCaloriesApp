@@ -45,7 +45,7 @@ class Product:
         self.weight = weight
 
     def __repr__(self):
-        return f"{self.product_type} :: {self.weight}g"
+        return f"{self.weight}g\t{self.product_type.name}"
 
 
 if __name__ == '__main__':

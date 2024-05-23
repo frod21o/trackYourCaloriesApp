@@ -74,10 +74,10 @@ def get_available_users() -> list[str]:
 
 if __name__ == '__main__':
     """ testing functionalities """
-    user = User("jedrzej")
+    user = User("other")
     # user.add_ate_product(ProductType("ogór"), 50)
     # user.add_ate_product(ProductType("jajo"), 20)
-    # user.add_ate_product("drugie jajo", 20)
+    # user.add_ate_product(ProductType("drugie jajo"), 20)
     # user.del_ate_product(0)
     print(user.get_ate_products())
 
