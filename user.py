@@ -4,34 +4,60 @@ from typing import TypedDict
 from products import Product
 
 
-def current_date() -> date:
+def _current_date() -> date:
     return date.today()
 
 
-def user_filename(username: str) -> str:
+def _user_filename(username: str) -> str:
     return username + "_data.json"
 
 
 class UserData(TypedDict):
+    """ Holds data about specific user """
     username: str
     custom_products: list[Product]
     eat_history: dict[date, list[Product]]
 
 
-def get_userdata_from_file(name: str) -> UserData:
-    pass
-
-
 class User:
     def __init__(self, username: str):
-        self.data: UserData
-        self.load_data()
+        self._data: UserData = {"username": username}
+        try:
+            self.load_data()
+        except FileNotFoundError:
+            self._data["custom_products"] = []
+            self._data["eat_history"] = {}
 
     def load_data(self):
+        """ Loads user data from file """
         pass
 
     def save_data(self):
+        """ Saves user data to file """
         pass
 
+    # Custom products are the products created and described by the user
+    def get_custom_products(self) -> list[Product]:
+        return self._data["custom_products"]
+
+    def add_custom_product(self, food_name: str, **nutrients):
+        self._data["custom_products"].append(Product(name=food_name, nutrients=nutrients))
+        self.save_data()
+
+    def del_custom_product(self, index: int):
+        self._data["custom_products"].pop(index)
+        self.save_data()
+
+    # Ate products are products that user claimed that he ate
+    def get_ate_products(self) -> list[Product]:
+        return self._data["eat_history"][_current_date()]
+
+    def add_ate_product(self, food_name: str, weight: float, **nutrients):
+        self._data["eat_history"][_current_date()].append(Product(name=food_name, weight=weight, nutrients=nutrients))
+        self.save_data()
+
+    def del_ate_product(self, index: int):
+        self._data["eat_history"][_current_date()].pop(index)
+        self.save_data()
 
 
