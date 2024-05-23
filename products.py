@@ -1,7 +1,5 @@
 import json
-from typing import TypedDict
 from collections import namedtuple
-from api_handler import search_food
 
 Nutrients = namedtuple("Nutrients", ['nf_calories', 'nf_total_fat',
                                      'nf_saturated_fat', 'nf_cholesterol', 'nf_total_carbohydrate',
@@ -31,8 +29,6 @@ class Product:
 
 if __name__ == '__main__':
     """ testing functionalities """
-    # query = "apple"
-    # result = search_food(query)
     p = Product({"nf_calories": 3, "other": 0})
     print(p)
 

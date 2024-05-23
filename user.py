@@ -66,6 +66,7 @@ class User:
 
 
 if __name__ == '__main__':
+    """ testing functionalities """
     user = User("jedrzej")
     # user.add_ate_product("ogór", 50)
     # user.add_ate_product("jajo", 20)

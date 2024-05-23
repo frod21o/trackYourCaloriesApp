@@ -36,7 +36,8 @@ def get_nutrition_by_id(item_id: str) -> dict:
     :return: Dict with nutrition info
     """
     params = {'nix_item_id': item_id}
-    return _get_response(base_url + "search/item", params)
+    response = _get_response(base_url + "search/item", params)
+    return response['foods'][0] if response else None
 
 
 def get_nutrition_by_upc(upc: str) -> dict:
@@ -47,7 +48,8 @@ def get_nutrition_by_upc(upc: str) -> dict:
     :return: Dict with nutrition info
     """
     params = {'upc': upc}
-    return _get_response(base_url + "search/item", params)
+    response = _get_response(base_url + "search/item", params)
+    return response['foods'][0] if response else None
 
 
 def _get_response(url: str, params: dict):
@@ -67,34 +69,33 @@ def _get_response(url: str, params: dict):
         return None
 
 
-
-
 if __name__ == "__main__":
     """ testing functionalities """
-    query = "apple"
-    search_result = search_food(query)
+    search_result = search_food("apple")
 
-    # if search_result and 'branded' in search_result and search_result['branded']:
-    #     item_id = search_result['branded'][0]['nix_item_id']
-    #
-    #     nutrition_info = get_nutrition_by_id(item_id)
-    #
-    #     if nutrition_info:
-    #         print(nutrition_info)
-    #     else:
-    #         print("Failed to retrieve nutrition information")
-    # else:
-    #     print("No branded products found or failed to retrieve search results")
+    if search_result:
+        print(len(search_result))
+        for it in search_result:
+            print(f"keys: {it.keys()}")
+            print(f"name: {it['food_name']}")
+            print(it)
+    else:
+        print("Failed to retrieve data")
 
+    print('\n\n')
 
-    # if search_result:
-    #     print(len(search_result))
-    #     print(search_result)
-    #     for it in search_result:
-    #         # print(f"keys: {it.keys()}")
-    #         print(f"name: {it['food_name']}")
-    #         print(it)
-    #         # print(f"name: {it['tag_name']}")
-    #         # print(f"id: {it['tag_id']}")
-    # else:
-    #     print("Failed to retrieve data")
+    if search_result:
+        item_id = search_result[0]['nix_item_id']
+
+        nutrition_info = get_nutrition_by_id(item_id)
+
+        if nutrition_info:
+            print("found nutrition info:")
+            print(nutrition_info)
+        else:
+            print("Failed to retrieve nutrition information")
+    else:
+        print("No branded products found or failed to retrieve search results")
+
+    print(get_nutrition_by_upc(49000000450))
+
