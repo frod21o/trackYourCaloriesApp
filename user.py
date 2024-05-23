@@ -2,6 +2,7 @@ from datetime import date
 from typing import TypedDict
 
 from products import Product
+import pickle
 
 
 def _current_date() -> date:
@@ -9,7 +10,7 @@ def _current_date() -> date:
 
 
 def _user_filename(username: str) -> str:
-    return username + "_data.json"
+    return username + "_data.pkl"
 
 
 class UserData(TypedDict):
@@ -30,11 +31,13 @@ class User:
 
     def load_data(self):
         """ Loads user data from file """
-        pass
+        with open(_user_filename(self._data["username"]), 'rb') as file:
+            self._data = pickle.load(file)
 
     def save_data(self):
         """ Saves user data to file """
-        pass
+        with open(_user_filename(self._data["username"]), 'wb') as file:
+            pickle.dump(self._data, file)
 
     # Custom products are the products created and described by the user
     def get_custom_products(self) -> list[Product]:
@@ -50,10 +53,11 @@ class User:
 
     # Ate products are products that user claimed that he ate
     def get_ate_products(self) -> list[Product]:
-        return self._data["eat_history"][_current_date()]
+        return self._data["eat_history"].setdefault(_current_date(), [])
 
     def add_ate_product(self, food_name: str, weight: float, **nutrients):
-        self._data["eat_history"][_current_date()].append(Product(name=food_name, weight=weight, nutrients=nutrients))
+        self._data["eat_history"].setdefault(_current_date(), []).append(Product(name=food_name, weight=weight,
+                                                                                 nutrients=nutrients))
         self.save_data()
 
     def del_ate_product(self, index: int):
@@ -61,3 +65,10 @@ class User:
         self.save_data()
 
 
+if __name__ == '__main__':
+    user = User("jedrzej")
+    # user.add_ate_product("ogór", 50)
+    # user.add_ate_product("jajo", 20)
+    # user.add_ate_product("drugie jajo", 20)
+    # user.del_ate_product(0)
+    print(user.get_ate_products())
