@@ -57,8 +57,12 @@ class User:
     def get_ate_products(self, from_date: QDate = current_date()) -> list[Product]:
         return self._data["eat_history"].setdefault(from_date, [])
 
-    def add_ate_product(self, product: ProductType, weight: float):
+    def create_add_ate_product(self, product: ProductType, weight: float):
         self._data["eat_history"].setdefault(current_date(), []).append(Product(product_type=product, weight=weight))
+        self.save_data()
+
+    def add_ate_product(self, product: Product):
+        self._data["eat_history"].setdefault(current_date(), []).append(product)
         self.save_data()
 
     def del_ate_product(self, index: int):
@@ -75,9 +79,9 @@ def get_available_users() -> list[str]:
 if __name__ == '__main__':
     """ testing functionalities """
     user = User("jedrzej")
-    # user.add_ate_product(ProductType("ogór"), 50)
-    user.add_ate_product(ProductType("jajo"), 20)
-    user.add_ate_product(ProductType("drugie jajo"), 20)
+    # user.create_add_ate_product(ProductType("ogór"), 50)
+    user.create_add_ate_product(ProductType("jajo"), 20)
+    user.create_add_ate_product(ProductType("drugie jajo"), 20)
     # user.del_ate_product(0)
     print(user.get_ate_products())
 

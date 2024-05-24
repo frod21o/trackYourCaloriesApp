@@ -19,10 +19,11 @@ class ProductType:
         self.nutrients: Nutrients = Nutrients(**({field: nutrients.get(field, None) for field in Nutrients._fields}))
 
     def __repr__(self):
-        return json.dumps({
-            "name": self.name,
-            "nutrients": self.nutrients
-        })
+        return self.name
+        # return json.dumps({
+        #     "name": self.name,
+        #     "nutrients": self.nutrients
+        # })
 
     @staticmethod
     def combine_products(name: str, ingreedients: list['Product']) -> 'ProductType':

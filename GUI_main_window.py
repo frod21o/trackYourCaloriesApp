@@ -1,5 +1,3 @@
-import time
-
 from PySide6.QtWidgets import QApplication, QMainWindow, QDateEdit, QMenu, QListWidget, QListWidgetItem
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction
@@ -8,6 +6,7 @@ import sys
 
 import user
 from GUI_popups import *
+from GUI_search_dialog import SearchProductsDialog
 
 
 class MyMainWindow(QMainWindow):
@@ -55,9 +54,8 @@ class MyMainWindow(QMainWindow):
 
         # Setting up buttons
         self.ui.button_delete.clicked.connect(self.delete_ate_product)
+        self.ui.button_add.clicked.connect(self.add_ate_product)
 
-        self.example_product = ProductType("ziarno", nf_calories=3, other=0)
-        self.ui.button_add.clicked.connect(lambda: ProductPopup(self.example_product, parent=self).exec())
 
     def setup_users_menu(self):
         for idx, username in enumerate(self.users):
@@ -102,6 +100,14 @@ class MyMainWindow(QMainWindow):
             self.current_user.del_ate_product(current_product_idx)
             self.refresh_ate_list()
 
+    def add_ate_product(self):
+        dialog = SearchProductsDialog()
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.current_user.add_ate_product(dialog.created_product)
+            self.refresh_ate_list()
+            # self.created_product = Product(selected_product_type, dialog.value())
+            # SearchProductsDialog.recent_products.append(self.created_product)
+            # self.accept()
 
 
 def run():
