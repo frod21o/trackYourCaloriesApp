@@ -8,12 +8,12 @@ import api_handler
 
 
 class SearchProductsDialog(QDialog):
-    """ Popup for finding a product through the api and creating Product object """
+    """ Dialog for finding a product type through the api """
     recent_products: list[ProductType] = []
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.created_product: Product = None
+        self.selected_product_type: ProductType = None
 
         self.setWindowTitle(f"Find product")
         self.resize(400, 300)
@@ -69,16 +69,16 @@ class SearchProductsDialog(QDialog):
         self.list_widget.addItems([product["food_name"] for product in self.found_products])
 
     def add_selected_product(self):
-        selected_product_type = self.get_selected_product_type()
-        if selected_product_type:
-            self.create_product(selected_product_type)
+        self.selected_product_type = self.get_selected_product_type()
+        if self.selected_product_type:
+            self.accept()
 
     def get_selected_product_type(self) -> ProductType:
         idx = self.list_widget.currentRow()
         if idx < 0:
             return None
         if self.displaying_recent:
-            self.create_product(SearchProductsDialog.recent_products[~idx])
+            return SearchProductsDialog.recent_products[~idx]
         else:
             food_id = self.found_products[idx]["nix_item_id"]
             food_info = api_handler.get_nutrition_by_id(food_id)

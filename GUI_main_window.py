@@ -101,13 +101,14 @@ class MyMainWindow(QMainWindow):
             self.refresh_ate_list()
 
     def add_ate_product(self):
-        dialog = SearchProductsDialog()
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.current_user.add_ate_product(dialog.created_product)
-            self.refresh_ate_list()
-            # self.created_product = Product(selected_product_type, dialog.value())
-            # SearchProductsDialog.recent_products.append(self.created_product)
-            # self.accept()
+        product_type_dialog = SearchProductsDialog()
+        if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
+            product_type = product_type_dialog.selected_product_type
+            product_weight_dialog = AddProductPopup(product_type, parent=self)
+            if product_weight_dialog.exec() == QDialog.DialogCode.Accepted:
+                weight = product_weight_dialog.value()
+                self.current_user.create_add_ate_product(product_type, weight)
+                self.refresh_ate_list()
 
 
 def run():

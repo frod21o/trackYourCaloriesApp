@@ -55,6 +55,7 @@ class AddProductPopup(QDialog):
     def __init__(self, product_type: ProductType, parent=None):
         super().__init__(parent)
         self.setWindowTitle(f"Add {product_type.name}")
+        self.resize(350, self.minimumHeight())
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 

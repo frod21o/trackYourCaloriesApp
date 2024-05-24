@@ -57,8 +57,8 @@ class User:
     def get_ate_products(self, from_date: QDate = current_date()) -> list[Product]:
         return self._data["eat_history"].setdefault(from_date, [])
 
-    def create_add_ate_product(self, product: ProductType, weight: float):
-        self._data["eat_history"].setdefault(current_date(), []).append(Product(product_type=product, weight=weight))
+    def create_add_ate_product(self, product_type: ProductType, weight: float):
+        self._data["eat_history"].setdefault(current_date(), []).append(Product(product_type=product_type, weight=weight))
         self.save_data()
 
     def add_ate_product(self, product: Product):
