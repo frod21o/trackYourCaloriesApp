@@ -13,7 +13,7 @@ base_url = "https://trackapi.nutritionix.com/v2/"
 headers = get_headers(headers_filename)
 
 
-def search_food(query: dict) -> dict:
+def search_food(query: str) -> dict:
     """
     Finds a product based on string query
 
