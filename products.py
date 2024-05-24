@@ -20,10 +20,6 @@ class ProductType:
 
     def __repr__(self):
         return self.name
-        # return json.dumps({
-        #     "name": self.name,
-        #     "nutrients": self.nutrients
-        # })
 
     @staticmethod
     def combine_products(name: str, ingreedients: list['Product']) -> 'ProductType':
