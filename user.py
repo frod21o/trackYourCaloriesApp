@@ -1,4 +1,4 @@
-from datetime import date
+from PySide6.QtCore import QDate
 from typing import TypedDict
 import re
 import os
@@ -7,8 +7,8 @@ import pickle
 from products import ProductType, Product
 
 
-def _current_date() -> date:
-    return date.today()
+def _current_date() -> QDate:
+    return QDate.currentDate()
 
 
 def _user_filename(username: str) -> str:
@@ -19,7 +19,7 @@ class UserData(TypedDict):
     """ Holds data about specific user """
     username: str
     custom_products: list[ProductType]
-    eat_history: dict[date, list[Product]]
+    eat_history: dict[QDate, list[Product]]
 
 
 class User:
@@ -54,8 +54,8 @@ class User:
         self.save_data()
 
     # Ate products are products that user claimed that he ate
-    def get_ate_products(self) -> list[Product]:
-        return self._data["eat_history"].setdefault(_current_date(), [])
+    def get_ate_products(self, from_date: QDate = _current_date()) -> list[Product]:
+        return self._data["eat_history"].setdefault(from_date, [])
 
     def add_ate_product(self, product: ProductType, weight: float):
         self._data["eat_history"].setdefault(_current_date(), []).append(Product(product_type=product, weight=weight))
@@ -74,10 +74,10 @@ def get_available_users() -> list[str]:
 
 if __name__ == '__main__':
     """ testing functionalities """
-    user = User("other")
+    user = User("jedrzej")
     # user.add_ate_product(ProductType("ogór"), 50)
-    # user.add_ate_product(ProductType("jajo"), 20)
-    # user.add_ate_product(ProductType("drugie jajo"), 20)
+    user.add_ate_product(ProductType("jajo"), 20)
+    user.add_ate_product(ProductType("drugie jajo"), 20)
     # user.del_ate_product(0)
     print(user.get_ate_products())
 

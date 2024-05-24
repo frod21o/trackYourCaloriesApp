@@ -25,7 +25,8 @@ class ProductType:
         })
 
     @staticmethod
-    def combine_products(name: str, ingreedients: list['Product']) -> 'Product':
+    def combine_products(name: str, ingreedients: list['Product']) -> 'ProductType':
+        """ Takes list of actual products as ingreedients and creates a new ProductType out of it """
         combined_nutrients = {}
         for product in ingreedients:
             for nut_name in product.product_type.nutrients._fields:
@@ -50,5 +51,5 @@ class Product:
 
 if __name__ == '__main__':
     """ testing functionalities """
-    p = ProductType({"nf_calories": 3, "other": 0})
+    p = ProductType("ziarno", nf_calories=3, other=0)
     print(p)
