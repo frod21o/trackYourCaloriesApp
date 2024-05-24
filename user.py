@@ -7,7 +7,7 @@ import pickle
 from products import ProductType, Product
 
 
-def _current_date() -> QDate:
+def current_date() -> QDate:
     return QDate.currentDate()
 
 
@@ -54,15 +54,15 @@ class User:
         self.save_data()
 
     # Ate products are products that user claimed that he ate
-    def get_ate_products(self, from_date: QDate = _current_date()) -> list[Product]:
+    def get_ate_products(self, from_date: QDate = current_date()) -> list[Product]:
         return self._data["eat_history"].setdefault(from_date, [])
 
     def add_ate_product(self, product: ProductType, weight: float):
-        self._data["eat_history"].setdefault(_current_date(), []).append(Product(product_type=product, weight=weight))
+        self._data["eat_history"].setdefault(current_date(), []).append(Product(product_type=product, weight=weight))
         self.save_data()
 
     def del_ate_product(self, index: int):
-        self._data["eat_history"][_current_date()].pop(index)
+        self._data["eat_history"][current_date()].pop(index)
         self.save_data()
 
 

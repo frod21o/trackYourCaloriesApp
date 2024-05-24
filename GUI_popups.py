@@ -23,7 +23,10 @@ class ProductPopup(QDialog):
         self.text_nutrients = []
         for idx, nutrient in enumerate(Nutrients._fields):
             self.text_nutrients.append(QSpinBox())
-            self.text_nutrients[-1].setReadOnly(not editable)
+            if not editable:
+                self.text_nutrients[-1].setReadOnly(False)
+                self.text_nutrients[-1].setStyleSheet("QSpinBox::up-button { width: 0px; } "
+                                                      "QSpinBox::down-button { width: 0px; }")
             if product.nutrients[idx] is None:
                 self.text_nutrients[-1].setValue(0)
             else:

@@ -42,11 +42,20 @@ class MyMainWindow(QMainWindow):
             product_idx = self.ui.list_ate_products.row(item)
             ProductPopup(self.current_user.get_ate_products(selected_date)[product_idx].product_type).exec()
         self.ui.list_ate_products.itemDoubleClicked.connect(display_clicked_product)
-        self.ui.date_select.dateChanged.connect(self.refresh_ate_list)
 
-        self.ui.date_select.setMaximumDate(user._current_date())
+        # Setting up date widget
+        def new_date_selected():
+            should_enable_edit = self.is_today_selected()
+            # QPushButton().
+            self.ui.button_add.setEnabled(should_enable_edit)
+            self.ui.button_delete.setEnabled(should_enable_edit)
+            self.refresh_ate_list()
+        self.ui.date_select.dateChanged.connect(new_date_selected)
+        self.ui.date_select.setMaximumDate(user.current_date())
 
-        # self.ui.
+        # Setting up buttons
+        self.ui.button_delete.clicked.connect(self.delete_ate_product)
+
         self.example_product = ProductType("ziarno", nf_calories=3, other=0)
         self.ui.button_add.clicked.connect(lambda: ProductPopup(self.example_product, parent=self).exec())
 
@@ -74,9 +83,12 @@ class MyMainWindow(QMainWindow):
             action.setChecked(False)
         self.user_actions[user_idx].setChecked(True)
         self.current_user = user.User(self.users[user_idx])
-        self.ui.date_select.setDate(user._current_date())
+        self.ui.date_select.setDate(user.current_date())
         self.refresh_ate_list()
         # TODO
+
+    def is_today_selected(self) -> bool:
+        return self.ui.date_select.date() == user.current_date()
 
     def refresh_ate_list(self):
         products_names = [str(product) for product in self.current_user.get_ate_products(self.ui.date_select.date())]
@@ -84,9 +96,11 @@ class MyMainWindow(QMainWindow):
         self.ui.list_ate_products.addItems(products_names)
 
     def delete_ate_product(self):
-        pass
-
-
+        QListWidget().currentRow()
+        current_product_idx = self.ui.list_ate_products.currentRow()
+        if current_product_idx >= 0 and self.is_today_selected():
+            self.current_user.del_ate_product(current_product_idx)
+            self.refresh_ate_list()
 
 
 
