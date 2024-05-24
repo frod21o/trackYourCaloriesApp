@@ -44,7 +44,7 @@ def get_nutrition_by_upc(upc: str) -> dict:
     """
     Downloads information about nutrition of specific item
 
-    :param :
+    :param upc: Upc number of the product
     :return: Dict with nutrition info
     """
     params = {'upc': upc}
