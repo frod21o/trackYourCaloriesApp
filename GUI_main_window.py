@@ -50,6 +50,8 @@ class MyMainWindow(QMainWindow):
         self.ui.button_my_products.clicked.connect(self.add_ate_custom_product)
 
     def setup_users_menu(self):
+        self.user_actions.clear()
+        self.ui.menu_users.clear()
         for idx, username in enumerate(self.users):
             action = QAction(self)
             action.setObjectName(f"user_action{idx}")
@@ -58,6 +60,12 @@ class MyMainWindow(QMainWindow):
             action.triggered.connect(lambda checked, idx_inner=idx: self.select_user(idx_inner, checked))
             self.user_actions.append(action)
             self.ui.menu_users.addAction(action)
+        self.ui.menu_users.addSeparator()
+        action = QAction(self)
+        action.setObjectName(f"add_user_action")
+        action.setText("Add new user")
+        action.triggered.connect(self.add_user)
+        self.ui.menu_users.addAction(action)
 
     def select_user(self, user_idx: int, other_selected: bool = True):
         """
@@ -76,6 +84,14 @@ class MyMainWindow(QMainWindow):
         self.ui.date_select.setDate(user.current_date())
         self.refresh_ate_info()
 
+    def add_user(self):
+        dialog = StringInputPopup(self, title="Add user", label_text="Ener user name")
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.users.append(dialog.get_value())
+        self.setup_users_menu()
+        self.select_user(-1)
+        self.current_user.save_data()
+
     def is_today_selected(self) -> bool:
         return self.ui.date_select.date() == user.current_date()
 
@@ -86,9 +102,14 @@ class MyMainWindow(QMainWindow):
         self.refresh_ate_info()
 
     def refresh_ate_info(self):
-        self.ate_list_widget.product_list = self.current_user.get_ate_products(self.ui.date_select.date())
+        selected_date = self.ui.date_select.date()
+        self.ate_list_widget.product_list = self.current_user.get_ate_products(selected_date)
         self.ate_list_widget.refresh_list()
-        self.ui.text_calories
+        calories, correct = self.current_user.count_nutrients(Nutrients._fields.index("nf_calories"), selected_date)
+        if correct:
+            self.ui.text_calories.setText(f"{calories:.2f} kcal")
+        else:
+            self.ui.text_calories.setText(f"At least {calories:.2f} kcal (not every value given)")
 
     def add_ate_product(self):
         product_type_dialog = SearchProductsDialog(self)

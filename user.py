@@ -62,7 +62,8 @@ class User:
         return self._data["eat_history"].setdefault(from_date, [])
 
     def create_add_ate_product(self, product_type: ProductType, weight: float):
-        self._data["eat_history"].setdefault(current_date(), []).append(Product(product_type=product_type, weight=weight))
+        self._data["eat_history"].setdefault(current_date(), []).append(
+            Product(product_type=product_type, weight=weight))
         self.save_data()
 
     def add_ate_product(self, product: Product):
@@ -72,6 +73,17 @@ class User:
     def del_ate_product(self, index: int):
         self._data["eat_history"][current_date()].pop(index)
         self.save_data()
+
+    def count_nutrients(self, nutrient_idx: int, date: QDate = current_date()):
+        """
+        Returns a tuple like (amount, correct) where:
+        amount - amount of selected nutrient eaten at selected date
+        correct - bool value indicating if none of the nutrient values were NoneType
+        """
+        nutrient_values = [product.product_type.nutrients[nutrient_idx] * product.weight / 100
+                           for product in self._data["eat_history"][date]
+                           if product.product_type.nutrients[nutrient_idx]]
+        return sum(nutrient_values), len(nutrient_values) == len(self._data["eat_history"][date])
 
 
 def get_available_users() -> list[str]:
