@@ -11,6 +11,9 @@ class SearchProductsDialog(QDialog):
     recent_products: list[ProductType] = []
 
     def __init__(self, parent=None):
+        """
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent=parent)
         self.selected_product_type: ProductType = None
 

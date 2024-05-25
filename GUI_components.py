@@ -8,6 +8,10 @@ from GUI_search_dialog import SearchProductsDialog
 class ProductTypeListWidget(QListWidget):
     """ List widget displaying a list of ProductType objects with a lot of useful methods """
     def __init__(self, product_list: list[ProductType], parent=None):
+        """
+        :param product_list: list of ProductType objects, that will bye displayed
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent=parent)
         self.product_list = product_list
         self.itemDoubleClicked.connect(self.display_selected_product_info)
@@ -40,6 +44,10 @@ class ProductTypeListWidget(QListWidget):
 class ProductListWidget(QListWidget):
     """ List widget displaying a list of Product objects with a lot of useful methods """
     def __init__(self, product_list: list[Product], parent=None):
+        """
+        :param product_list: list of Product objects, that will bye displayed
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent=parent)
         self.product_list = product_list
         self.itemDoubleClicked.connect(self.display_selected_product_info)

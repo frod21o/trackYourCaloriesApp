@@ -9,7 +9,12 @@ from GUI_components import ProductTypeListWidget, ProductListWidget
 
 class CustomProductsDialog(QDialog):
     """ Dialog for managing custom products of the user and adding them to ate list """
-    def __init__(self, user: User, parent=None, editable=True):
+    def __init__(self, user: User, editable=True, parent=None):
+        """
+        :param user: User whose custom products will be displayed and managed
+        :param editable: Indicates if buttons for adding and deleting products should be created
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent=parent)
         self.setWindowTitle(f"My products")
         self.resize(400, 300)
@@ -89,6 +94,10 @@ class CustomProductsDialog(QDialog):
 class ProductListDialog(QDialog):
     """ Dialog for creating a product list """
     def __init__(self, user: User, parent=None):
+        """
+        :param user: User whose custom products can be added to list
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent=parent)
         self.setWindowTitle("Product list")
         self.resize(400, 300)

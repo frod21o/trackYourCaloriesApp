@@ -7,9 +7,14 @@ from products import *
 class ProductPopup(QDialog):
     """ Popup for displaying data about product and editing them if allowed """
 
-    def __init__(self, product: ProductType, editable=False, parent=None):
+    def __init__(self, product_type: ProductType, editable=False, parent=None):
+        """
+        :param product_type: product type, which will be displayed
+        :param editable: Indicates if user will be able to edit information about product type
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent=parent)
-        self.setWindowTitle(f"Product {product.name}")
+        self.setWindowTitle(f"Product {product_type.name}")
         self.resize(400, self.minimumHeight())
         layout = QFormLayout()
         self.setLayout(layout)
@@ -17,7 +22,7 @@ class ProductPopup(QDialog):
         # Setting name row
         self.text_name = QLineEdit()
         self.text_name.setReadOnly(not editable)
-        self.text_name.setText(product.name)
+        self.text_name.setText(product_type.name)
         layout.addRow("Name", self.text_name)
         layout.addRow("In 100 grams:", None)
 
@@ -30,17 +35,17 @@ class ProductPopup(QDialog):
                 self.spinbox_nutrients[-1].setReadOnly(True)
                 self.spinbox_nutrients[-1].setStyleSheet("QSpinBox::up-button { width: 0px; } "
                                                          "QSpinBox::down-button { width: 0px; }")
-            if product.nutrients[idx] is None:
+            if product_type.nutrients[idx] is None:
                 self.spinbox_nutrients[-1].setValue(0)
             else:
-                self.spinbox_nutrients[-1].setValue(product.nutrients[idx])
+                self.spinbox_nutrients[-1].setValue(product_type.nutrients[idx])
             layout.addRow(nutrient, self.spinbox_nutrients[-1])
 
         # Setting ok button
         if editable:
             def ok_action():
                 """ Action to do when ok button clicked """
-                self.save_to_product(product)
+                self.save_to_product(product_type)
                 self.accept()
 
             button_save = QPushButton()
@@ -56,8 +61,13 @@ class ProductPopup(QDialog):
 
 class DoubleInputPopup(QDialog):
     """ Popup for getting a double type value from user """
-
-    def __init__(self, parent=None, title="Enter value", label_text="Enter double value", force_positive: bool = True):
+    def __init__(self, title="Enter value", label_text="Enter double value", force_positive: bool = True, parent=None):
+        """
+        :param title: Title of the popup window
+        :param label_text: Text of the label
+        :param force_positive: Indicates if popup will require positive number
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent)
         self.setWindowTitle(title)
         self.resize(350, self.minimumHeight())
@@ -98,8 +108,12 @@ class DoubleInputPopup(QDialog):
 
 class StringInputPopup(QDialog):
     """ Popup for getting a string type value from user """
-
-    def __init__(self, parent=None, title="Enter text", label_text="Enter text"):
+    def __init__(self, title="Enter text", label_text="Enter text", parent=None):
+        """
+        :param title: Title of the popup window
+        :param label_text: Text of the label
+        :param parent: Set parent of the widget
+        """
         super().__init__(parent)
         self.resize(350, self.minimumHeight())
         self.setWindowTitle(title)
