@@ -1,7 +1,7 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QDateEdit, QMenu, QListWidget, QListWidgetItem, QGroupBox
+from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction
-from PySide6.QtCore import QFile, QIODeviceBase, QDate
+from PySide6.QtCore import QFile, QIODeviceBase
 import sys
 
 import user
@@ -12,6 +12,7 @@ from GUI_components import ProductListWidget
 
 
 class MyMainWindow(QMainWindow):
+    """ Main window of the app, mostly loaded from the main_window.ui file """
     def __init__(self):
         super().__init__()
 
@@ -50,6 +51,7 @@ class MyMainWindow(QMainWindow):
         self.ui.button_my_products.clicked.connect(self.add_ate_custom_product)
 
     def setup_users_menu(self):
+        """ Redoes the user menu - clears it and adds all users from the list """
         self.user_actions.clear()
         self.ui.menu_users.clear()
         for idx, username in enumerate(self.users):
@@ -85,23 +87,27 @@ class MyMainWindow(QMainWindow):
         self.refresh_ate_info()
 
     def add_user(self):
+        """ Adds a new user to the list, takes care of everything that should be updated """
         dialog = StringInputPopup(self, title="Add user", label_text="Ener user name")
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.users.append(dialog.get_value())
-        self.setup_users_menu()
-        self.select_user(-1)
-        self.current_user.save_data()
+            self.setup_users_menu()
+            self.select_user(-1)
+            self.current_user.save_data()
 
     def is_today_selected(self) -> bool:
+        """ Returns True if current date is selected """
         return self.ui.date_select.date() == user.current_date()
 
     def new_date_selected(self):
+        """ Takes care of everything, that should be updated after changing a date """
         should_enable_edit = self.is_today_selected()
         self.ui.button_add.setEnabled(should_enable_edit)
         self.ui.button_delete.setEnabled(should_enable_edit)
         self.refresh_ate_info()
 
     def refresh_ate_info(self):
+        """ Updates every information about ate products """
         selected_date = self.ui.date_select.date()
         self.ate_list_widget.product_list = self.current_user.get_ate_products(selected_date)
         self.ate_list_widget.refresh_list()
@@ -112,6 +118,7 @@ class MyMainWindow(QMainWindow):
             self.ui.text_calories.setText(f"At least {calories:.2f} kcal (not every value given)")
 
     def add_ate_product(self):
+        """ Launches a dialog, that allows the user to add a product from api to ate list"""
         product_type_dialog = SearchProductsDialog(self)
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type
@@ -119,6 +126,7 @@ class MyMainWindow(QMainWindow):
             self.current_user.save_data()
 
     def add_ate_custom_product(self):
+        """ Launches a dialog, that allows the user to manage his own products and to add one of them to ate list"""
         product_type_dialog = CustomProductsDialog(self.current_user, self)
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type()
@@ -127,8 +135,8 @@ class MyMainWindow(QMainWindow):
 
 
 def run():
+    """ Launches the application """
     app = QApplication(sys.argv)
     main_window = MyMainWindow()
     main_window.show()
     sys.exit(app.exec())
-

@@ -1,14 +1,13 @@
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox, QListWidget,
-                               QLineEdit, QLabel, QDoubleSpinBox, QDialogButtonBox)
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox, QListWidget, QLineEdit, QLabel
 
 from products import *
-from GUI_popups import DoubleInputPopup, ProductPopup
+from GUI_popups import ProductPopup
 import api_handler
 
 
 class SearchProductsDialog(QDialog):
-    """ Dialog for finding a product type through the api """
+    """ Dialog for finding a product type using the api """
     recent_products: list[ProductType] = []
 
     def __init__(self, parent=None):
@@ -37,8 +36,10 @@ class SearchProductsDialog(QDialog):
         self.list_widget = QListWidget()
         self.list_widget.itemDoubleClicked.connect(self.display_selected_product_info)
         main_layout.addWidget(self.list_widget)
-        self.found_products = []        # initialization of important variables
-        self.displaying_recent = True   #
+
+        # Initialization of important variables
+        self.found_products = []
+        self.displaying_recent = True   # Indicates whether the widget is currently displaying 'recent products'
         self.display_recent()
 
         # Setting add button
@@ -47,11 +48,13 @@ class SearchProductsDialog(QDialog):
         main_layout.addWidget(self.button_add)
 
     def display_selected_product_info(self):
+        """ Launches a popup with all the information about selected product """
         selected_product_type = self.get_selected_product_type()
         if selected_product_type:
             ProductPopup(selected_product_type, parent=self).exec()
 
     def display_recent(self):
+        """ Displays recently browsed products """
         self.displaying_recent = True
         self.label_widget_title.setText("Recent products")
         self.list_widget.clear()
@@ -59,6 +62,7 @@ class SearchProductsDialog(QDialog):
         self.list_widget.addItems(reversed(recent_names))
 
     def search(self):
+        """ Sends an api request based on user input and displays received products in the widget """
         if self.text_search.text() == "":
             self.display_recent()
             return
@@ -69,11 +73,13 @@ class SearchProductsDialog(QDialog):
         self.list_widget.addItems([product["food_name"] for product in self.found_products])
 
     def add_selected_product(self):
+        """ Sets the outcome variable and closes the dialog window with Accept code """
         self.selected_product_type = self.get_selected_product_type()
         if self.selected_product_type:
             self.accept()
 
     def get_selected_product_type(self) -> ProductType:
+        """ Returns ProductType object based on user selection """
         idx = self.list_widget.currentRow()
         if idx < 0:
             return None

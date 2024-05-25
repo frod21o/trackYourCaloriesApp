@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QSpinBox, QPushButton,
-                               QLineEdit, QLabel, QDoubleSpinBox, QDialogButtonBox)
+                               QLineEdit, QLabel, QDoubleSpinBox, QDialogButtonBox, QMessageBox)
 
 from products import *
 
 
 class ProductPopup(QDialog):
     """ Popup for displaying data about product and editing them if allowed """
+
     def __init__(self, product: ProductType, editable=False, parent=None):
         super().__init__(parent=parent)
         self.setWindowTitle(f"Product {product.name}")
@@ -41,6 +42,7 @@ class ProductPopup(QDialog):
                 """ Action to do when ok button clicked """
                 self.save_to_product(product)
                 self.accept()
+
             button_save = QPushButton()
             button_save.setText("ok")
             button_save.clicked.connect(ok_action)
@@ -53,55 +55,78 @@ class ProductPopup(QDialog):
 
 
 class DoubleInputPopup(QDialog):
-    def __init__(self, parent=None, title="Enter value", label_text="Enter double value"):
+    """ Popup for getting a double type value from user """
+
+    def __init__(self, parent=None, title="Enter value", label_text="Enter double value", force_positive: bool = True):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.resize(350, self.minimumHeight())
+        self.force_positive = force_positive
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
         self.label = QLabel(label_text)
         layout.addWidget(self.label)
 
-        # Setting weight spinbox
-        self.spinbox_weight = QDoubleSpinBox()
-        self.spinbox_weight.setStyleSheet("QDoubleSpinBox::up-button { width: 0px; } "
-                                          "QDoubleSpinBox::down-button { width: 0px; }")
-        self.spinbox_weight.setRange(0, 10000)
-        layout.addWidget(self.spinbox_weight)
+        # Setting SpinBox widget
+        self.spinbox = QDoubleSpinBox()
+        self.spinbox.setStyleSheet("QDoubleSpinBox::up-button { width: 0px; } "
+                                   "QDoubleSpinBox::down-button { width: 0px; }")
+        self.spinbox.setRange(0, 10000)
+        layout.addWidget(self.spinbox)
 
-        # Setting buttons ok and cancel
-        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-        layout.addWidget(button_box)
+        # Setting OK and Cancel buttons
+        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        self.button_box.accepted.connect(self.try_to_accept)
+        self.button_box.rejected.connect(self.reject)
+        layout.addWidget(self.button_box)
 
-    def get_value(self):
-        return self.spinbox_weight.value()
+    def try_to_accept(self):
+        """ Checks if dialog can end with Accept code """
+        if self.get_value() > 0 or not self.force_positive:
+            self.accept()
+        else:
+            message = QMessageBox()
+            message.setWindowTitle('Warning')
+            message.setText('Number have to be positive')
+            message.exec()
+
+    def get_value(self) -> float:
+        """ Returns entered value """
+        return self.spinbox.value()
 
 
 class StringInputPopup(QDialog):
+    """ Popup for getting a string type value from user """
+
     def __init__(self, parent=None, title="Enter text", label_text="Enter text"):
         super().__init__(parent)
         self.resize(350, self.minimumHeight())
         self.setWindowTitle(title)
-
-        # Create layout
         layout = QVBoxLayout(self)
 
-        # Create and add QLineEdit to layout
+        # Setting LineEdit widget
         self.text_input = QLineEdit(self)
         self.text_input.setPlaceholderText(label_text)
         layout.addWidget(self.text_input)
 
-        # Create QDialogButtonBox with OK and Cancel buttons
+        # Setting OK and Cancel buttons
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
                                            QDialogButtonBox.StandardButton.Cancel, self)
+        self.button_box.accepted.connect(self.try_to_accept)
+        self.button_box.rejected.connect(self.reject)
         layout.addWidget(self.button_box)
 
-        # Connect buttons to their respective slots
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
+    def try_to_accept(self):
+        """ Checks if dialog can end with Accept code """
+        if self.get_value() != "":
+            self.accept()
+        else:
+            message = QMessageBox()
+            message.setWindowTitle('Warning')
+            message.setText('Box can not be empty')
+            message.exec()
 
-    def get_value(self):
+    def get_value(self) -> str:
+        """ Returns entered text """
         return self.text_input.text()

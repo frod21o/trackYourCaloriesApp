@@ -1,4 +1,3 @@
-import json
 from collections import namedtuple
 
 Nutrients = namedtuple("Nutrients", ['nf_calories', 'nf_total_fat',
@@ -25,11 +24,13 @@ class ProductType:
     def combine_products(name: str, ingreedients: list['Product']) -> 'ProductType':
         """ Takes list of actual products as ingreedients and creates a new ProductType out of it """
         combined_nutrients = {}
-        for product in ingreedients:
-            for idx, nut_name in enumerate(product.product_type.nutrients._fields):
+        combined_weight = sum([product.weight for product in ingreedients])
+        for idx, nut_name in enumerate(Nutrients._fields):
+            for product in ingreedients:
                 if product.product_type.nutrients[idx]:
                     combined_nutrients[nut_name] = (combined_nutrients.get(nut_name, 0) +
                                                     product.product_type.nutrients[idx] * product.weight/100)
+            combined_nutrients[nut_name] *= 100/combined_weight
         return ProductType(name, **combined_nutrients)
 
 
