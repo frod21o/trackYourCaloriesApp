@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QPushButton, Q
                                QLineEdit, QLabel, QDoubleSpinBox, QDialogButtonBox)
 
 from products import *
-from GUI_popups import AddProductPopup, ProductPopup
+from GUI_popups import DoubleInputPopup, ProductPopup
 import api_handler
 
 
@@ -86,8 +86,8 @@ class SearchProductsDialog(QDialog):
             self.recent_products.append(product_type)
             return product_type
 
-    def create_product(self, selected_product_type: ProductType):
-        dialog = AddProductPopup(selected_product_type, parent=self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.created_product = Product(selected_product_type, dialog.value())
-            self.accept()
+    # def create_product(self, selected_product_type: ProductType):
+    #     dialog = DoubleInputPopup(selected_product_type, parent=self, title=f"Add {selected_product_type.name}", label_text="Enter weight:")
+    #     if dialog.exec() == QDialog.DialogCode.Accepted:
+    #         self.created_product = Product(selected_product_type, dialog.get_value())
+    #         self.accept()

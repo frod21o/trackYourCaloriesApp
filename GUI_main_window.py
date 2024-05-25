@@ -7,6 +7,7 @@ import sys
 import user
 from GUI_popups import *
 from GUI_search_dialog import SearchProductsDialog
+from GUI_custom_products_dialogs import CustomProductsDialog
 
 
 class MyMainWindow(QMainWindow):
@@ -19,7 +20,6 @@ class MyMainWindow(QMainWindow):
         file.open(QIODeviceBase.ReadOnly)
         self.ui = loader.load(file)
         file.close()
-
         self.setWindowTitle(self.ui.windowTitle())
         self.resize(366, 508)
         self.setCentralWidget(self.ui)
@@ -55,6 +55,7 @@ class MyMainWindow(QMainWindow):
         # Setting up buttons
         self.ui.button_delete.clicked.connect(self.delete_ate_product)
         self.ui.button_add.clicked.connect(self.add_ate_product)
+        self.ui.button_my_products.clicked.connect(self.add_ate_custom_product)
 
 
     def setup_users_menu(self):
@@ -101,14 +102,24 @@ class MyMainWindow(QMainWindow):
             self.refresh_ate_list()
 
     def add_ate_product(self):
-        product_type_dialog = SearchProductsDialog()
+        product_type_dialog = SearchProductsDialog(self)
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type
-            product_weight_dialog = AddProductPopup(product_type, parent=self)
-            if product_weight_dialog.exec() == QDialog.DialogCode.Accepted:
-                weight = product_weight_dialog.value()
-                self.current_user.create_add_ate_product(product_type, weight)
-                self.refresh_ate_list()
+            self.get_weight_and_add(product_type)
+
+    def add_ate_custom_product(self):
+        product_type_dialog = CustomProductsDialog(self.current_user, self)
+        if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
+            product_type = product_type_dialog.selected_product_type()
+            self.get_weight_and_add(product_type)
+
+    def get_weight_and_add(self, product_type: ProductType):
+        product_weight_dialog = DoubleInputPopup(parent=self, title=f"Add {product_type.name}",
+                                                 label_text="Enter weight:")
+        if product_weight_dialog.exec() == QDialog.DialogCode.Accepted:
+            weight = product_weight_dialog.get_value()
+            self.current_user.create_add_ate_product(product_type, weight)
+            self.refresh_ate_list()
 
 
 def run():

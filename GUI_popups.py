@@ -39,7 +39,7 @@ class ProductPopup(QDialog):
             def ok_action():
                 """ Action to do when ok button clicked """
                 self.save_to_product(product)
-                self.close()
+                self.accept()
             button_save = QPushButton()
             button_save.setText("ok")
             button_save.clicked.connect(ok_action)
@@ -51,15 +51,15 @@ class ProductPopup(QDialog):
         product.nutrients = Nutrients(*[spinbox.value() for spinbox in self.spinbox_nutrients])
 
 
-class AddProductPopup(QDialog):
-    def __init__(self, product_type: ProductType, parent=None):
+class DoubleInputPopup(QDialog):
+    def __init__(self, parent=None, title="Enter value", label_text="Enter double value"):
         super().__init__(parent)
-        self.setWindowTitle(f"Add {product_type.name}")
+        self.setWindowTitle(title)
         self.resize(350, self.minimumHeight())
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
-        self.label = QLabel("Enter weight:")
+        self.label = QLabel(label_text)
         layout.addWidget(self.label)
 
         # Setting weight spinbox
@@ -67,7 +67,6 @@ class AddProductPopup(QDialog):
         self.spinbox_weight.setStyleSheet("QDoubleSpinBox::up-button { width: 0px; } "
                                           "QDoubleSpinBox::down-button { width: 0px; }")
         self.spinbox_weight.setRange(0, 10000)
-        # self.spinbox_weight.lineEdit().setMaxLength(6)
         layout.addWidget(self.spinbox_weight)
 
         # Setting buttons ok and cancel
@@ -76,6 +75,32 @@ class AddProductPopup(QDialog):
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
 
-    def value(self):
+    def get_value(self):
         return self.spinbox_weight.value()
 
+
+class StringInputPopup(QDialog):
+    def __init__(self, parent=None, title="Enter text", label_text="Enter text"):
+        super().__init__(parent)
+        self.resize(350, self.minimumHeight())
+        self.setWindowTitle(title)
+
+        # Create layout
+        layout = QVBoxLayout(self)
+
+        # Create and add QLineEdit to layout
+        self.text_input = QLineEdit(self)
+        self.text_input.setPlaceholderText(label_text)
+        layout.addWidget(self.text_input)
+
+        # Create QDialogButtonBox with OK and Cancel buttons
+        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
+                                           QDialogButtonBox.StandardButton.Cancel, self)
+        layout.addWidget(self.button_box)
+
+        # Connect buttons to their respective slots
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+
+    def get_value(self):
+        return self.text_input.text()

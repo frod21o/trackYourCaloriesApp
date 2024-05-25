@@ -45,8 +45,12 @@ class User:
     def get_custom_products(self) -> list[ProductType]:
         return self._data["custom_products"]
 
-    def add_custom_product(self, food_name: str, **nutrients):
+    def create_add_custom_product(self, food_name: str, **nutrients):
         self._data["custom_products"].append(ProductType(name=food_name, nutrients=nutrients))
+        self.save_data()
+
+    def add_custom_product(self, product_type: ProductType):
+        self._data["custom_products"].append(product_type)
         self.save_data()
 
     def del_custom_product(self, index: int):

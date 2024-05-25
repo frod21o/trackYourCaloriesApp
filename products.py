@@ -26,9 +26,10 @@ class ProductType:
         """ Takes list of actual products as ingreedients and creates a new ProductType out of it """
         combined_nutrients = {}
         for product in ingreedients:
-            for nut_name in product.product_type.nutrients._fields:
-                combined_nutrients[nut_name] = (combined_nutrients.get(nut_name, 0) +
-                                                product.product_type.nutrients[nut_name] * product.weight/100)
+            for idx, nut_name in enumerate(product.product_type.nutrients._fields):
+                if product.product_type.nutrients[idx]:
+                    combined_nutrients[nut_name] = (combined_nutrients.get(nut_name, 0) +
+                                                    product.product_type.nutrients[idx] * product.weight/100)
         return ProductType(name, **combined_nutrients)
 
 
