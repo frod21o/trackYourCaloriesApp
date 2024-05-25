@@ -24,6 +24,7 @@ class CustomProductsDialog(QDialog):
 
         # Setting buttons
         box_buttons = QGroupBox()
+        box_buttons.setFlat(True)
         group_layout = QHBoxLayout(box_buttons)
 
         self.button_eat = QPushButton(box_buttons)

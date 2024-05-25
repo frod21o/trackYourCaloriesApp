@@ -85,9 +85,3 @@ class SearchProductsDialog(QDialog):
             product_type = ProductType(food_info['food_name'], **food_info)
             self.recent_products.append(product_type)
             return product_type
-
-    # def create_product(self, selected_product_type: ProductType):
-    #     dialog = DoubleInputPopup(selected_product_type, parent=self, title=f"Add {selected_product_type.name}", label_text="Enter weight:")
-    #     if dialog.exec() == QDialog.DialogCode.Accepted:
-    #         self.created_product = Product(selected_product_type, dialog.get_value())
-    #         self.accept()

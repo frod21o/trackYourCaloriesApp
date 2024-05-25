@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QDateEdit, QMenu, QListWidget, QListWidgetItem
+from PySide6.QtWidgets import QApplication, QMainWindow, QDateEdit, QMenu, QListWidget, QListWidgetItem, QGroupBox
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction
 from PySide6.QtCore import QFile, QIODeviceBase, QDate
@@ -8,6 +8,7 @@ import user
 from GUI_popups import *
 from GUI_search_dialog import SearchProductsDialog
 from GUI_custom_products_dialogs import CustomProductsDialog
+from GUI_components import ProductListWidget
 
 
 class MyMainWindow(QMainWindow):
@@ -31,32 +32,22 @@ class MyMainWindow(QMainWindow):
         self.user_actions = []
         self.setup_users_menu()
 
+        # Setting up list widget displaying products from the ate list
+        self.ate_list_widget = ProductListWidget([], self)
+        self.ui.list_widget_container.layout().addWidget(self.ate_list_widget)
+
         # Selecting a user
         self.current_user: user.User = None
         self.select_user(0)
 
-        # Setting up displaying products from the ate list
-        def display_clicked_product(item: QListWidgetItem):
-            selected_date = self.ui.date_select.date()
-            product_idx = self.ui.list_ate_products.row(item)
-            ProductPopup(self.current_user.get_ate_products(selected_date)[product_idx].product_type).exec()
-        self.ui.list_ate_products.itemDoubleClicked.connect(display_clicked_product)
-
         # Setting up date widget
-        def new_date_selected():
-            should_enable_edit = self.is_today_selected()
-            # QPushButton().
-            self.ui.button_add.setEnabled(should_enable_edit)
-            self.ui.button_delete.setEnabled(should_enable_edit)
-            self.refresh_ate_list()
-        self.ui.date_select.dateChanged.connect(new_date_selected)
+        self.ui.date_select.dateChanged.connect(self.new_date_selected)
         self.ui.date_select.setMaximumDate(user.current_date())
 
         # Setting up buttons
-        self.ui.button_delete.clicked.connect(self.delete_ate_product)
+        self.ui.button_delete.clicked.connect(self.ate_list_widget.delete_selected_product)
         self.ui.button_add.clicked.connect(self.add_ate_product)
         self.ui.button_my_products.clicked.connect(self.add_ate_custom_product)
-
 
     def setup_users_menu(self):
         for idx, username in enumerate(self.users):
@@ -83,43 +74,35 @@ class MyMainWindow(QMainWindow):
         self.user_actions[user_idx].setChecked(True)
         self.current_user = user.User(self.users[user_idx])
         self.ui.date_select.setDate(user.current_date())
-        self.refresh_ate_list()
-        # TODO
+        self.refresh_ate_info()
 
     def is_today_selected(self) -> bool:
         return self.ui.date_select.date() == user.current_date()
 
-    def refresh_ate_list(self):
-        products_names = [str(product) for product in self.current_user.get_ate_products(self.ui.date_select.date())]
-        self.ui.list_ate_products.clear()
-        self.ui.list_ate_products.addItems(products_names)
+    def new_date_selected(self):
+        should_enable_edit = self.is_today_selected()
+        self.ui.button_add.setEnabled(should_enable_edit)
+        self.ui.button_delete.setEnabled(should_enable_edit)
+        self.refresh_ate_info()
 
-    def delete_ate_product(self):
-        QListWidget().currentRow()
-        current_product_idx = self.ui.list_ate_products.currentRow()
-        if current_product_idx >= 0 and self.is_today_selected():
-            self.current_user.del_ate_product(current_product_idx)
-            self.refresh_ate_list()
+    def refresh_ate_info(self):
+        self.ate_list_widget.product_list = self.current_user.get_ate_products(self.ui.date_select.date())
+        self.ate_list_widget.refresh_list()
+        self.ui.text_calories
 
     def add_ate_product(self):
         product_type_dialog = SearchProductsDialog(self)
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type
-            self.get_weight_and_add(product_type)
+            self.ate_list_widget.add_product_by_type(product_type)
+            self.current_user.save_data()
 
     def add_ate_custom_product(self):
         product_type_dialog = CustomProductsDialog(self.current_user, self)
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type()
-            self.get_weight_and_add(product_type)
-
-    def get_weight_and_add(self, product_type: ProductType):
-        product_weight_dialog = DoubleInputPopup(parent=self, title=f"Add {product_type.name}",
-                                                 label_text="Enter weight:")
-        if product_weight_dialog.exec() == QDialog.DialogCode.Accepted:
-            weight = product_weight_dialog.get_value()
-            self.current_user.create_add_ate_product(product_type, weight)
-            self.refresh_ate_list()
+            self.ate_list_widget.add_product_by_type(product_type)
+            self.current_user.save_data()
 
 
 def run():

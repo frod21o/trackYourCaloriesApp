@@ -18,6 +18,7 @@ class ProductPopup(QDialog):
         self.text_name.setReadOnly(not editable)
         self.text_name.setText(product.name)
         layout.addRow("Name", self.text_name)
+        layout.addRow("In 100 grams:", None)
 
         # Setting nutrients rows
         self.spinbox_nutrients = []
