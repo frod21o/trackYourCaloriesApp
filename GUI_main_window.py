@@ -8,7 +8,7 @@ from GUI_popups import *
 from GUI_search_dialog import SearchProductsDialog
 from GUI_custom_products_dialogs import CustomProductsDialog
 from GUI_components import ProductListWidget
-# from GUI_graph_window import GraphWindow
+from GUI_graph_window import GraphWindow
 
 
 class MyMainWindow(QMainWindow):
@@ -34,7 +34,7 @@ class MyMainWindow(QMainWindow):
         self.setup_users_menu()
 
         # Setting up statistics menu
-        # self.ui.action_graph.triggered.connect(lambda: GraphWindow(self).show())
+        self.ui.action_graph.triggered.connect(lambda: GraphWindow(self.current_user, self).show())
         self.ui.action_set_parameters.triggered.connect(lambda: UserParamsInputPopup(self.current_user, self).exec())
         self.ui.action_set_limits.triggered.connect(lambda: UserLimitsPopup(self.current_user, self).exec())
 

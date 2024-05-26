@@ -87,14 +87,16 @@ class User:
         self._data["eat_history"][current_date()].pop(index)
         self.save_data()
 
-    def count_nutrients(self, nutrient_idx: int, date: QDate = current_date()):
+    def count_nutrients(self, nutrient_idx: int, date: QDate = current_date()) -> tuple[float, bool]:
         """
-        Returns a tuple like (amount, correct) where:
-        amount - amount of selected nutrient eaten at selected date
-        correct - bool value indicating if none of the nutrient values were NoneType
-
-        TODO
+        :param nutrient_idx: Index of the nutrient to count
+        :param date: Date for which nutrients will be counted
+        :return: tuple in a form (amount, correct) where:
+            amount - amount of selected nutrient eaten at selected date
+            correct - bool value indicating if none of the nutrient values were NoneType
         """
+        if date not in self._data["eat_history"].keys():
+            return 0, True
         nutrient_values = [product.product_type.nutrients[nutrient_idx] * product.weight / 100
                            for product in self._data["eat_history"][date]
                            if product.product_type.nutrients[nutrient_idx] is not None]
@@ -112,13 +114,14 @@ class User:
         self._data["limits"] = limits
         self.save_data()
 
+    @property
     def get_ppm(self) -> float | None:
         """ Returns PPM based on the user parameters. If not all parameters are valid, returns None"""
         if self._data["age"] <= 0 or self._data["height"] <= 0 or self._data["weight"] <= 0:
             return None
-        if self._data["gender"] is MALE_STR:
+        if self._data["gender"] == MALE_STR:
             return 66.473 + 13.7561 * self._data["weight"] + 5.0033 * self._data["height"] + 6.755 * self._data["age"]
-        if self._data["gender"] is FEMALE_STR:
+        if self._data["gender"] == FEMALE_STR:
             return 655.0955 + 9.5634 * self._data["weight"] + 1.8496 * self._data["height"] + 4.6756 * self._data["age"]
         return None
 
@@ -158,9 +161,10 @@ if __name__ == '__main__':
     """ testing functionalities """
     user = User("jedrzej")
     # user.create_add_eaten_product(ProductType("ogór"), 50)
-    user.create_add_eaten_product(ProductType("jajo"), 20)
-    user.create_add_eaten_product(ProductType("drugie jajo"), 20)
+    # user.create_add_eaten_product(ProductType("jajo"), 20)
+    # user.create_add_eaten_product(ProductType("drugie jajo"), 20)
     # user.del_eaten_product(0)
     print(user.get_eaten_products())
-
     print(get_available_users())
+
+    print(user.count_nutrients(0, current_date().addDays(-1)))
