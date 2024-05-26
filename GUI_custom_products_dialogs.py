@@ -84,7 +84,7 @@ class CustomProductsDialog(QDialog):
         dialog = ProductListDialog(self.current_user, self)
         dialog.setWindowTitle("Combine products")
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            get_name_dialog = StringInputPopup(self, title="Creating product", label_text="Enter product name")
+            get_name_dialog = StringInputPopup(title="Creating product", label_text="Enter product name", parent=self)
             if get_name_dialog.exec() == QDialog.DialogCode.Accepted:
                 combined_product_type = ProductType.combine_products(get_name_dialog.get_value(), dialog.created_list)
                 self.current_user.add_custom_product(combined_product_type)

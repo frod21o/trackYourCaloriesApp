@@ -4,7 +4,10 @@ import re
 import os
 import pickle
 
-from products import ProductType, Product
+from products import ProductType, Product, Nutrients
+
+MALE_STR = "Male"
+FEMALE_STR = "Female"
 
 
 def current_date() -> QDate:
@@ -20,6 +23,11 @@ class UserData(TypedDict):
     username: str
     custom_products: list[ProductType]
     eat_history: dict[QDate, list[Product]]
+    gender: str
+    age: int
+    height: float
+    weight: float
+    limits: Nutrients
 
 
 class User:
@@ -30,6 +38,11 @@ class User:
         except FileNotFoundError:
             self._data["custom_products"] = []
             self._data["eat_history"] = {}
+            self._data["gender"] = ''
+            self._data["age"] = 0
+            self._data["height"] = 0
+            self._data["weight"] = 0
+            self._data["limits"] = Nutrients(*(None for _ in Nutrients._fields))
 
     def load_data(self):
         """ Loads user data from file """
@@ -79,11 +92,60 @@ class User:
         Returns a tuple like (amount, correct) where:
         amount - amount of selected nutrient eaten at selected date
         correct - bool value indicating if none of the nutrient values were NoneType
+
+        TODO
         """
         nutrient_values = [product.product_type.nutrients[nutrient_idx] * product.weight / 100
                            for product in self._data["eat_history"][date]
-                           if product.product_type.nutrients[nutrient_idx]]
+                           if product.product_type.nutrients[nutrient_idx] is not None]
         return sum(nutrient_values), len(nutrient_values) == len(self._data["eat_history"][date])
+
+    def set_user_parameters(self, gender: str, age: int, height: float, weight: float):
+        """ Sets user parameters to given values """
+        self._data["gender"] = gender
+        self._data["age"] = age
+        self._data["height"] = height
+        self._data["weight"] = weight
+        self.save_data()
+
+    def set_limits(self, limits: Nutrients):
+        self._data["limits"] = limits
+        self.save_data()
+
+    def get_ppm(self) -> float | None:
+        """ Returns PPM based on the user parameters. If not all parameters are valid, returns None"""
+        if self._data["age"] <= 0 or self._data["height"] <= 0 or self._data["weight"] <= 0:
+            return None
+        if self._data["gender"] is MALE_STR:
+            return 66.473 + 13.7561 * self._data["weight"] + 5.0033 * self._data["height"] + 6.755 * self._data["age"]
+        if self._data["gender"] is FEMALE_STR:
+            return 655.0955 + 9.5634 * self._data["weight"] + 1.8496 * self._data["height"] + 4.6756 * self._data["age"]
+        return None
+
+    # Getters
+    @property
+    def name(self):
+        return self._data.get("username", "")
+
+    @property
+    def gender(self):
+        return self._data.get("gender", "")
+
+    @property
+    def age(self):
+        return self._data.get("age", 0)
+
+    @property
+    def height(self):
+        return self._data.get("height", 0)
+
+    @property
+    def weight(self):
+        return self._data.get("weight", 0)
+
+    @property
+    def limits(self):
+        return self._data.get("limits", Nutrients(*(None for _ in Nutrients._fields)))
 
 
 def get_available_users() -> list[str]:

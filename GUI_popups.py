@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QSpinBox, QPushButton,
+from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QSpinBox, QPushButton, QHBoxLayout, QComboBox,
                                QLineEdit, QLabel, QDoubleSpinBox, QDialogButtonBox, QMessageBox)
 
 from products import *
+import user
 
 
 class ProductPopup(QDialog):
@@ -14,6 +15,7 @@ class ProductPopup(QDialog):
         :param parent: Set parent of the widget
         """
         super().__init__(parent=parent)
+        self.product_type = product_type
         self.setWindowTitle(f"Product {product_type.name}")
         self.resize(400, self.minimumHeight())
         layout = QFormLayout()
@@ -43,20 +45,20 @@ class ProductPopup(QDialog):
 
         # Setting ok button
         if editable:
-            def ok_action():
-                """ Action to do when ok button clicked """
-                self.save_to_product(product_type)
-                self.accept()
-
             button_save = QPushButton()
             button_save.setText("ok")
-            button_save.clicked.connect(ok_action)
+            button_save.clicked.connect(self.accept)
             layout.addWidget(button_save)
 
-    def save_to_product(self, product: ProductType):
-        """ Saves all the product information in the given ProductType object """
-        product.name = self.text_name.text()
-        product.nutrients = Nutrients(*[spinbox.value() for spinbox in self.spinbox_nutrients])
+    def get_entered_nutrients(self) -> Nutrients:
+        """ Return entered values as a Nutrients namedtuple """
+        return Nutrients(*[spinbox.value() for spinbox in self.spinbox_nutrients])
+
+    def accept(self):
+        """ Saves values to ProductType and accepts dialog """
+        self.product_type.name = self.text_name.text()
+        self.product_type.nutrients = self.get_entered_nutrients()
+        super().accept()
 
 
 class DoubleInputPopup(QDialog):
@@ -144,3 +146,101 @@ class StringInputPopup(QDialog):
     def get_value(self) -> str:
         """ Returns entered text """
         return self.text_input.text()
+
+
+class UserParamsInputPopup(QDialog):
+    """ Popup for editing parameters of the user """
+    def __init__(self, current_user: user.User, parent=None):
+        """
+        :param current_user: The user whose parameters will be modified
+        :param parent: Set parent of the widget
+        """
+        super().__init__(parent=parent)
+        self.current_user = current_user
+
+        self.setWindowTitle(f"User: {current_user.name}")
+        self.resize(350, self.minimumHeight())
+        layout = QVBoxLayout()
+
+        # Gender choice
+        gender_layout = QHBoxLayout()
+        gender_label = QLabel("Gender:")
+        self.gender_combobox = QComboBox()
+        self.gender_combobox.addItems([user.MALE_STR, user.FEMALE_STR])
+        if self.current_user.gender in (user.MALE_STR, user.FEMALE_STR):
+            self.gender_combobox.setCurrentText(self.current_user.gender)
+        else:
+            self.gender_combobox.setCurrentText("")
+        gender_layout.addWidget(gender_label)
+        gender_layout.addWidget(self.gender_combobox)
+        layout.addLayout(gender_layout)
+
+        # Age choice
+        age_layout = QHBoxLayout()
+        age_label = QLabel("Age (years):")
+        self.age_spinbox = QSpinBox()
+        self.age_spinbox.setRange(0, 150)
+        self.age_spinbox.setValue(self.current_user.age)
+        age_layout.addWidget(age_label)
+        age_layout.addWidget(self.age_spinbox)
+        layout.addLayout(age_layout)
+
+        # Height choice
+        height_layout = QHBoxLayout()
+        height_label = QLabel("Height (cm):")
+        self.height_spinbox = QSpinBox()
+        self.height_spinbox.setRange(20, 300)
+        self.height_spinbox.setValue(self.current_user.height)
+        height_layout.addWidget(height_label)
+        height_layout.addWidget(self.height_spinbox)
+        layout.addLayout(height_layout)
+
+        # Weight choice
+        weight_layout = QHBoxLayout()
+        weight_label = QLabel("Weight (kg):")
+        self.weight_spinbox = QSpinBox()
+        self.weight_spinbox.setRange(10, 300)
+        self.weight_spinbox.setValue(self.current_user.weight)
+        weight_layout.addWidget(weight_label)
+        weight_layout.addWidget(self.weight_spinbox)
+        layout.addLayout(weight_layout)
+
+        # Ok button
+        self.ok_button = QPushButton("OK")
+        self.ok_button.clicked.connect(self.accept)
+        layout.addWidget(self.ok_button)
+
+        self.setLayout(layout)
+
+    def get_values(self):
+        """ Returns entered values """
+        return {
+            "gender": self.gender_combobox.currentText(),
+            "age": self.age_spinbox.value(),
+            "height": self.height_spinbox.value(),
+            "weight": self.weight_spinbox.value()
+        }
+
+    def accept(self):
+        """ Saves parameters and accepts dialog """
+        self.current_user.set_user_parameters(**self.get_values())
+        super().accept()
+
+
+class UserLimitsPopup(ProductPopup):
+    """ Popup for editing user limits for nutrients """
+    def __init__(self, current_user: user.User, parent=None):
+        """
+        :param current_user: User whose limits will be edited
+        :param parent: Set parent of the widget
+        """
+        self.current_user = current_user
+        self.symbolic_product_type = ProductType(current_user.name)
+        self.symbolic_product_type.nutrients = current_user.limits
+        super().__init__(self.symbolic_product_type, True, parent)
+        self.setWindowTitle("User nutrients limits")
+
+    def accept(self):
+        """ Saves limits and accepts dialog"""
+        self.current_user.set_limits(self.get_entered_nutrients())
+        super().accept()

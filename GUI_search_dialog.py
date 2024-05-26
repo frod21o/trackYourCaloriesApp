@@ -81,7 +81,7 @@ class SearchProductsDialog(QDialog):
         if self.selected_product_type:
             self.accept()
 
-    def get_selected_product_type(self) -> ProductType:
+    def get_selected_product_type(self) -> ProductType | None:
         """ Returns ProductType object based on user selection """
         idx = self.list_widget.currentRow()
         if idx < 0:

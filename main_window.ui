@@ -192,7 +192,17 @@
      <string>Users</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuGraph">
+    <property name="title">
+     <string>Statistics</string>
+    </property>
+    <addaction name="action_set_parameters"/>
+    <addaction name="action_set_limits"/>
+    <addaction name="separator"/>
+    <addaction name="action_graph"/>
+   </widget>
    <addaction name="menu_users"/>
+   <addaction name="menuGraph"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actiondefault_User">
@@ -204,6 +214,21 @@
    </property>
    <property name="text">
     <string>default User</string>
+   </property>
+  </action>
+  <action name="action_graph">
+   <property name="text">
+    <string>Show graph</string>
+   </property>
+  </action>
+  <action name="action_set_parameters">
+   <property name="text">
+    <string>Set user parameters</string>
+   </property>
+  </action>
+  <action name="action_set_limits">
+   <property name="text">
+    <string>Set limits</string>
    </property>
   </action>
  </widget>

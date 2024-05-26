@@ -4,11 +4,11 @@ from PySide6.QtGui import QAction
 from PySide6.QtCore import QFile, QIODeviceBase
 import sys
 
-import user
 from GUI_popups import *
 from GUI_search_dialog import SearchProductsDialog
 from GUI_custom_products_dialogs import CustomProductsDialog
 from GUI_components import ProductListWidget
+# from GUI_graph_window import GraphWindow
 
 
 class MyMainWindow(QMainWindow):
@@ -33,7 +33,12 @@ class MyMainWindow(QMainWindow):
         self.user_actions = []
         self.setup_users_menu()
 
-        # Setting up list widget displaying products from the ate list
+        # Setting up statistics menu
+        # self.ui.action_graph.triggered.connect(lambda: GraphWindow(self).show())
+        self.ui.action_set_parameters.triggered.connect(lambda: UserParamsInputPopup(self.current_user, self).exec())
+        self.ui.action_set_limits.triggered.connect(lambda: UserLimitsPopup(self.current_user, self).exec())
+
+        # Setting up list widget displaying products from the ate list Set parent of the widget
         self.ate_list_widget = ProductListWidget([], self)
         self.ui.list_widget_container.layout().addWidget(self.ate_list_widget)
 
@@ -46,7 +51,7 @@ class MyMainWindow(QMainWindow):
         self.ui.date_select.setMaximumDate(user.current_date())
 
         # Setting up buttons
-        self.ui.button_delete.clicked.connect(self.ate_list_widget.delete_selected_product)
+        self.ui.button_delete.clicked.connect(self.delete_selected_product)
         self.ui.button_add.clicked.connect(self.add_ate_product)
         self.ui.button_my_products.clicked.connect(self.add_ate_custom_product)
 
@@ -88,7 +93,7 @@ class MyMainWindow(QMainWindow):
 
     def add_user(self):
         """ Adds a new user to the list, takes care of everything that should be updated """
-        dialog = StringInputPopup(self, title="Add user", label_text="Ener user name")
+        dialog = StringInputPopup(title="Add user", label_text="Ener user name", parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.users.append(dialog.get_value())
             self.setup_users_menu()
@@ -108,10 +113,13 @@ class MyMainWindow(QMainWindow):
 
     def refresh_ate_info(self):
         """ Updates every information about ate products """
-        selected_date = self.ui.date_select.date()
-        self.ate_list_widget.product_list = self.current_user.get_ate_products(selected_date)
+        self.ate_list_widget.product_list = self.current_user.get_ate_products(self.ui.date_select.date())
         self.ate_list_widget.refresh_list()
-        calories, correct = self.current_user.count_nutrients(Nutrients._fields.index("nf_calories"), selected_date)
+        self.display_calories_sum()
+
+    def display_calories_sum(self):
+        calories, correct = self.current_user.count_nutrients(
+            Nutrients._fields.index("nf_calories"), self.ui.date_select.date())
         if correct:
             self.ui.text_calories.setText(f"{calories:.2f} kcal")
         else:
@@ -123,6 +131,7 @@ class MyMainWindow(QMainWindow):
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type
             self.ate_list_widget.add_product_by_type(product_type)
+            self.display_calories_sum()
             self.current_user.save_data()
 
     def add_ate_custom_product(self):
@@ -131,7 +140,12 @@ class MyMainWindow(QMainWindow):
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type()
             self.ate_list_widget.add_product_by_type(product_type)
+            self.display_calories_sum()
             self.current_user.save_data()
+
+    def delete_selected_product(self):
+        self.ate_list_widget.delete_selected_product()
+        self.display_calories_sum()
 
 
 def run():
