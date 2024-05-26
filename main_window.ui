@@ -58,7 +58,7 @@
     <item>
      <widget class="QLabel" name="label">
       <property name="text">
-       <string>Ate products</string>
+       <string>Eaten products</string>
       </property>
      </widget>
     </item>

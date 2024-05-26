@@ -8,7 +8,7 @@ from GUI_components import ProductTypeListWidget, ProductListWidget
 
 
 class CustomProductsDialog(QDialog):
-    """ Dialog for managing custom products of the user and adding them to ate list """
+    """ Dialog for managing custom products of the user and adding them to eaten list """
     def __init__(self, user: User, editable=True, parent=None):
         """
         :param user: User whose custom products will be displayed and managed
@@ -31,7 +31,7 @@ class CustomProductsDialog(QDialog):
         box_buttons.setFlat(True)
         group_layout = QHBoxLayout(box_buttons)
 
-        # Button for adding selected product to ate list
+        # Button for adding selected product to eaten list
         self.button_eat = QPushButton(box_buttons)
         self.button_eat.setText("use")
         self.button_eat.clicked.connect(self.try_eating)

@@ -38,9 +38,9 @@ class MyMainWindow(QMainWindow):
         self.ui.action_set_parameters.triggered.connect(lambda: UserParamsInputPopup(self.current_user, self).exec())
         self.ui.action_set_limits.triggered.connect(lambda: UserLimitsPopup(self.current_user, self).exec())
 
-        # Setting up list widget displaying products from the ate list Set parent of the widget
-        self.ate_list_widget = ProductListWidget([], self)
-        self.ui.list_widget_container.layout().addWidget(self.ate_list_widget)
+        # Setting up list widget displaying products from the eaten list Set parent of the widget
+        self.eaten_list_widget = ProductListWidget([], self)
+        self.ui.list_widget_container.layout().addWidget(self.eaten_list_widget)
 
         # Selecting a user
         self.current_user: user.User = None
@@ -52,8 +52,8 @@ class MyMainWindow(QMainWindow):
 
         # Setting up buttons
         self.ui.button_delete.clicked.connect(self.delete_selected_product)
-        self.ui.button_add.clicked.connect(self.add_ate_product)
-        self.ui.button_my_products.clicked.connect(self.add_ate_custom_product)
+        self.ui.button_add.clicked.connect(self.add_eaten_product)
+        self.ui.button_my_products.clicked.connect(self.add_eaten_custom_product)
 
     def setup_users_menu(self):
         """ Redoes the user menu - clears it and adds all users from the list """
@@ -89,7 +89,7 @@ class MyMainWindow(QMainWindow):
         self.user_actions[user_idx].setChecked(True)
         self.current_user = user.User(self.users[user_idx])
         self.ui.date_select.setDate(user.current_date())
-        self.refresh_ate_info()
+        self.refresh_eaten_info()
 
     def add_user(self):
         """ Adds a new user to the list, takes care of everything that should be updated """
@@ -109,12 +109,12 @@ class MyMainWindow(QMainWindow):
         should_enable_edit = self.is_today_selected()
         self.ui.button_add.setEnabled(should_enable_edit)
         self.ui.button_delete.setEnabled(should_enable_edit)
-        self.refresh_ate_info()
+        self.refresh_eaten_info()
 
-    def refresh_ate_info(self):
-        """ Updates every information about ate products """
-        self.ate_list_widget.product_list = self.current_user.get_ate_products(self.ui.date_select.date())
-        self.ate_list_widget.refresh_list()
+    def refresh_eaten_info(self):
+        """ Updates every information about eaten products """
+        self.eaten_list_widget.product_list = self.current_user.get_eaten_products(self.ui.date_select.date())
+        self.eaten_list_widget.refresh_list()
         self.display_calories_sum()
 
     def display_calories_sum(self):
@@ -125,26 +125,26 @@ class MyMainWindow(QMainWindow):
         else:
             self.ui.text_calories.setText(f"At least {calories:.2f} kcal (not every value given)")
 
-    def add_ate_product(self):
-        """ Launches a dialog, that allows the user to add a product from api to ate list"""
+    def add_eaten_product(self):
+        """ Launches a dialog, that allows the user to add a product from api to eaten list"""
         product_type_dialog = SearchProductsDialog(self)
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type
-            self.ate_list_widget.add_product_by_type(product_type)
+            self.eaten_list_widget.add_product_by_type(product_type)
             self.display_calories_sum()
             self.current_user.save_data()
 
-    def add_ate_custom_product(self):
-        """ Launches a dialog, that allows the user to manage his own products and to add one of them to ate list"""
+    def add_eaten_custom_product(self):
+        """ Launches a dialog, that allows the user to manage his own products and to add one of them to eaten list"""
         product_type_dialog = CustomProductsDialog(self.current_user, self)
         if product_type_dialog.exec() == QDialog.DialogCode.Accepted:
             product_type = product_type_dialog.selected_product_type()
-            self.ate_list_widget.add_product_by_type(product_type)
+            self.eaten_list_widget.add_product_by_type(product_type)
             self.display_calories_sum()
             self.current_user.save_data()
 
     def delete_selected_product(self):
-        self.ate_list_widget.delete_selected_product()
+        self.eaten_list_widget.delete_selected_product()
         self.display_calories_sum()
 
 
