@@ -70,20 +70,20 @@ class User:
         self._data["custom_products"].pop(index)
         self.save_data()
 
-    # Ate products are products that user claimed that he ate
-    def get_ate_products(self, from_date: QDate = current_date()) -> list[Product]:
+    # Eaten products are products that user claimed that he ate
+    def get_eaten_products(self, from_date: QDate = current_date()) -> list[Product]:
         return self._data["eat_history"].setdefault(from_date, [])
 
-    def create_add_ate_product(self, product_type: ProductType, weight: float):
+    def create_add_eaten_product(self, product_type: ProductType, weight: float):
         self._data["eat_history"].setdefault(current_date(), []).append(
             Product(product_type=product_type, weight=weight))
         self.save_data()
 
-    def add_ate_product(self, product: Product):
+    def add_eaten_product(self, product: Product):
         self._data["eat_history"].setdefault(current_date(), []).append(product)
         self.save_data()
 
-    def del_ate_product(self, index: int):
+    def del_eaten_product(self, index: int):
         self._data["eat_history"][current_date()].pop(index)
         self.save_data()
 
@@ -157,10 +157,10 @@ def get_available_users() -> list[str]:
 if __name__ == '__main__':
     """ testing functionalities """
     user = User("jedrzej")
-    # user.create_add_ate_product(ProductType("ogór"), 50)
-    user.create_add_ate_product(ProductType("jajo"), 20)
-    user.create_add_ate_product(ProductType("drugie jajo"), 20)
-    # user.del_ate_product(0)
-    print(user.get_ate_products())
+    # user.create_add_eaten_product(ProductType("ogór"), 50)
+    user.create_add_eaten_product(ProductType("jajo"), 20)
+    user.create_add_eaten_product(ProductType("drugie jajo"), 20)
+    # user.del_eaten_product(0)
+    print(user.get_eaten_products())
 
     print(get_available_users())
