@@ -100,13 +100,13 @@ class MyMainWindow(QMainWindow):
             self.select_user(-1)
             self.current_user.save_data()
 
-    def is_today_selected(self) -> bool:
+    def is_date_recent(self, max_days_ago: int = 0) -> bool:
         """ Returns True if current date is selected """
-        return self.ui.date_select.date() == user.current_date()
+        return self.ui.date_select.date() >= user.current_date().addDays(-max_days_ago)
 
     def new_date_selected(self):
         """ Takes care of everything, that should be updated after changing a date """
-        should_enable_edit = self.is_today_selected()
+        should_enable_edit = self.is_date_recent(max_days_ago=1)
         self.ui.button_add.setEnabled(should_enable_edit)
         self.ui.button_delete.setEnabled(should_enable_edit)
         self.refresh_eaten_info()
@@ -118,6 +118,7 @@ class MyMainWindow(QMainWindow):
         self.display_calories_sum()
 
     def display_calories_sum(self):
+        """ Displays total value of calories at the selected day """
         calories, correct = self.current_user.count_nutrients(
             Nutrients._fields.index("nf_calories"), self.ui.date_select.date())
         if correct:

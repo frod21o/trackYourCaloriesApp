@@ -30,7 +30,7 @@ class ProductType:
                 if product.product_type.nutrients[idx]:
                     combined_nutrients[nut_name] = (combined_nutrients.get(nut_name, 0) +
                                                     product.product_type.nutrients[idx] * product.weight/100)
-            combined_nutrients[nut_name] *= 100/combined_weight
+            combined_nutrients[nut_name] = combined_nutrients.get(nut_name, 0) * 100/combined_weight
         return ProductType(name, **combined_nutrients)
 
 

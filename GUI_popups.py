@@ -26,7 +26,8 @@ class ProductPopup(QDialog):
         self.text_name.setReadOnly(not editable)
         self.text_name.setText(product_type.name)
         layout.addRow("Name", self.text_name)
-        layout.addRow("In 100 grams:", None)
+        self.label_nutrients_title = QLabel("In 100 grams:")
+        layout.addWidget(self.label_nutrients_title)
 
         # Setting nutrients rows
         self.spinbox_nutrients = []
@@ -239,6 +240,8 @@ class UserLimitsPopup(ProductPopup):
         self.symbolic_product_type.nutrients = current_user.limits
         super().__init__(self.symbolic_product_type, True, parent)
         self.setWindowTitle("User nutrients limits")
+        self.text_name.setReadOnly(True)
+        self.label_nutrients_title.setText("")
 
     def accept(self):
         """ Saves limits and accepts dialog"""
