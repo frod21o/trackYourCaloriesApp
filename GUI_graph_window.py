@@ -1,18 +1,14 @@
-# import sys
-# import numpy as np
-# import pyqtgraph as pg
-
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QGroupBox, QHBoxLayout, QLabel, QFrame, QComboBox
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 from user import User, current_date
 from products import Nutrients
 
 
 class MplCanvas(FigureCanvas):
+    """ Matpoltlib canvas, that can be displayed in the Pyside6 window """
     def __init__(self, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
@@ -20,7 +16,12 @@ class MplCanvas(FigureCanvas):
 
 
 class GraphWindow(QMainWindow):
+    """ Window for displaying a graph with selected nutrient consumption for given user """
     def __init__(self, user: User, parent=None):
+        """
+        :param user: User, whose consumption will be displayed
+        :param parent:  Set parent of the widget
+        """
         super().__init__(parent)
         self.setWindowTitle("Seaborn Plot in PySide6")
         self.user = user
@@ -35,9 +36,9 @@ class GraphWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        # --------------------------
+        # ----- Settings -----
 
-        group_box = QGroupBox("Nutrient Selection")
+        group_box = QGroupBox("Graph settings")
         group_layout = QHBoxLayout()
         group_box.setLayout(group_layout)
 
@@ -45,26 +46,25 @@ class GraphWindow(QMainWindow):
         nutrient_label = QLabel("Nutrient: ")
         group_layout.addWidget(nutrient_label)
 
-        # ComboBox z kilkoma stringami
+        # ComboBox for selecting nutrient
         self.nutrient_combobox = QComboBox()
         self.nutrient_combobox.addItems(Nutrients._fields)
-        self.nutrient_combobox.currentTextChanged.connect(self.plot_seaborn)
+        self.nutrient_combobox.currentTextChanged.connect(self.print_graph)
         group_layout.addWidget(self.nutrient_combobox)
 
-        # Separator graficzny
+        # Graphic separator
         separator = QFrame()
         separator.setFrameShape(QFrame.VLine)
-        separator.setFrameShadow(QFrame.Sunken)
         group_layout.addWidget(separator)
 
-        # Label: "last"
+        # Label: "From last"
         last_label = QLabel("From last")
         group_layout.addWidget(last_label)
 
-        # ComboBox z liczbą od 3 do 30
+        # ComboBox for number of days
         self.days_combobox = QComboBox()
         self.days_combobox.addItems([str(i) for i in range(3, 31)])
-        self.days_combobox.currentTextChanged.connect(self.plot_seaborn)
+        self.days_combobox.currentTextChanged.connect(self.print_graph)
         group_layout.addWidget(self.days_combobox)
 
         # Label: "days"
@@ -74,11 +74,11 @@ class GraphWindow(QMainWindow):
         layout.addWidget(group_box)
 
         # Generate a Seaborn plot and draw it on the canvas
-        self.plot_seaborn()
+        self.print_graph()
 
-    def plot_seaborn(self):
-        # Generate a sample Seaborn plot
-
+    def print_graph(self):
+        """ Printing a graph onto the canvas """
+        # Generating data
         nutrient_label = f"{self.nutrient_combobox.currentText()} (g)"
         nutrient_history = {
             "day ago": [],
@@ -92,7 +92,11 @@ class GraphWindow(QMainWindow):
 
         self.canvas.axes.cla()
 
-        # Dodawanie poziomej linii
+        # Adding graph
+        sns.barplot(x="day ago", y=nutrient_label, data=nutrient_history, ax=self.canvas.axes)
+        self.canvas.axes.set_ylim(bottom=0)
+
+        # Adding lines for limit and ppm
         limit_value = self.user.limits[nutrient_idx]
         if limit_value > 0:
             self.canvas.axes.axhline(limit_value, color='red', linestyle='--', linewidth=2,
@@ -101,8 +105,5 @@ class GraphWindow(QMainWindow):
             self.canvas.axes.axhline(self.user.get_ppm, color='green', linestyle='--', linewidth=2,
                                      label=f'PPM: {self.user.get_ppm:.2f}')
 
-        sns.barplot(x="day ago", y=nutrient_label, data=nutrient_history, ax=self.canvas.axes)
-
-        # self.canvas.axes.set_xticklabels(self.canvas.axes.get_xticklabels(), rotation=45)
-        self.canvas.axes.set_ylim(bottom=0)
+        # Printing
         self.canvas.draw()
