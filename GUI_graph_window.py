@@ -23,7 +23,7 @@ class GraphWindow(QMainWindow):
         :param parent:  Set parent of the widget
         """
         super().__init__(parent)
-        self.setWindowTitle("Seaborn Plot in PySide6")
+        self.setWindowTitle(f"Consumption of user {user.name}")
         self.user = user
 
         # Create the Matplotlib canvas
