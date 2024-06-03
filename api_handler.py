@@ -11,6 +11,7 @@ def get_headers(filename: str):
 headers_filename = "headers.json"
 base_url = "https://trackapi.nutritionix.com/v2/"
 headers = get_headers(headers_filename)
+headers["Content-Type"] = "application/json"
 
 
 def search_food(query: str) -> dict:
