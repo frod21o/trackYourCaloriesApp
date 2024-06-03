@@ -8,7 +8,7 @@ from products import Nutrients
 
 
 class MplCanvas(FigureCanvas):
-    """ Matpoltlib canvas, that can be displayed in the Pyside6 window """
+    """ Matplotlib canvas, that can be displayed in the Pyside6 window """
     def __init__(self, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
@@ -87,14 +87,13 @@ class GraphWindow(QMainWindow):
         nutrient_idx = Nutrients._fields.index(self.nutrient_combobox.currentText())
         for days in reversed(range(int(self.days_combobox.currentText()))):
             iteration_date = current_date().addDays(-days)
-            nutrient_history["day ago"].append(days) #iteration_date.toString())
+            nutrient_history["day ago"].append(days)
             nutrient_history[nutrient_label].append(self.user.count_nutrients(nutrient_idx, iteration_date)[0])
 
         self.canvas.axes.cla()
 
         # Adding graph
         sns.barplot(x="day ago", y=nutrient_label, data=nutrient_history, ax=self.canvas.axes)
-        self.canvas.axes.set_ylim(bottom=0)
 
         # Adding lines for limit and ppm
         limit_value = self.user.limits[nutrient_idx]
@@ -106,4 +105,5 @@ class GraphWindow(QMainWindow):
                                      label=f'PPM: {self.user.get_ppm:.2f}')
 
         # Printing
+        self.canvas.axes.set_ylim(bottom=0)
         self.canvas.draw()
